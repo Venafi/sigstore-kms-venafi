@@ -1,0 +1,49 @@
+name: Plugin Tests
+# Run on every push, and allow it to be run manually.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['main', 'v*']
+  pull_request:
+
+env:
+  REGISTRY: localhost:5000
+  IMAGE: ghcr.io/zosocanuck/net-monitor:v1
+  VSIGN_URL: ${{ secrets.TPP_URL }}
+  VSIGN_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+  VSIGN_PROJECT: ${{ secrets.TPP_PROJECT }}
+
+jobs:
+  plugin-tests:
+    # Skip if running in a fork that might not have secrets configured.
+    if: ${{ github.repository == 'venafi/sigstore-kms-venafi' }}
+    name: Run tests
+    runs-on: ubuntu-latest
+   
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - uses: actions/setup-go@v3.3.0
+        with:
+          go-version: '1.23.5'
+          check-latest: true
+      - name: docker registry v2
+        run: |
+          docker run -d -p 5000:5000 --name registry registry:2
+          docker build -t ${{ env.REGISTRY }}/net-monitor:v1 https://github.com/wabbit-networks/net-monitor.git#main
+          docker image push ${{ env.REGISTRY }}/net-monitor:v1
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.8.1
+        with:
+          cosign-release: 'v2.4.3'
+      - name: build sigstore-kms-venafi plugin
+        run: |
+          make build
+          echo "$PWD" >> $GITHUB_PATH
+      - name: Sign with notation
+        run: |
+          cosign sign --key "venafi://${{ env.VSIGN_PROJECT }}" --tlog-upload=false ${{ env.IMAGE }}
+          cosign verify --key "venafi://${{ env.VSIGN_PROJECT }}" --insecure-ignore-tlog=true ghcr.io/zosocanuck/net-monitor:v1
+  
