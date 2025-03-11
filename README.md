@@ -71,3 +71,39 @@ Example:
 ```sh
 cosign verify --key "venafi://container-signing-project\my-cert" --insecure-ignore-tlog=true my-org-repo/my-image:v1
 ```
+
+## Want to Contribute
+
+* Any questions, suggestions or issues please use [GitHub Issues](https://github.com/Venafi/sigstore-kms-venafi/issues)
+
+### Contributing to sigstore-kms-venafi
+
+Venafi welcomes contributions from the developer community.
+
+1. Fork it to your account (https://github.com/Venafi/sigstore-kms-venafi/fork)
+2. Clone your fork:
+   ```sh
+   git clone git@github.com:youracct/sigstore-kms-venafi.git
+   ```
+3. Create a feature branch:
+   ```sh
+   git checkout -b your-branch-name
+   ```
+4. Implement and test your changes
+5. Commit your changes:
+   ```sh
+   git commit -am 'Added some cool functionality'
+   ```
+6. Push to the branch
+   ```sh
+   git push origin your-branch-name
+   ```
+7. Create a new Pull Request at https://github.com/youracct/sigstore-kms-venafi/pull/new/your-branch-name
+
+## License
+
+Copyright &copy; Venafi, Inc. All rights reserved.
+
+sigstore-kms-venafi is licensed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) for the full license text.
+
+Please direct questions/comments to opensource@venafi.com.
