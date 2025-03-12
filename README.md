@@ -72,6 +72,10 @@ Example:
 cosign verify --key "venafi://container-signing-project\my-cert" --insecure-ignore-tlog=true my-org-repo/my-image:v1
 ```
 
+### Creating Verifiable Records with Tekton Chains and Venafi CodeSign Protect
+
+Checkout the following [Tekton Chains and Venafi KMS Plugin](./TEKTONCHAINS.md) integration guide
+
 ## Want to Contribute
 
 * Any questions, suggestions or issues please use [GitHub Issues](https://github.com/Venafi/sigstore-kms-venafi/issues)
