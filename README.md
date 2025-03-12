@@ -1,5 +1,5 @@
 # sigstore-kms-venafi
-Sigstore KMS Plugin for Venafi CodeSign Protect
+Sigstore [KMS Plugin](https://github.com/sigstore/sigstore/tree/main/pkg/signature/kms/cliplugin) for Venafi CodeSign Protect
 
 Supports [cosign](https://github.com/sigstore/cosign) image and artifact signing with [Venafi CodeSign Protect](https://venafi.com/codesign-protect/) leveraging the [vSign](https://github.com/Venafi/vsign) SDK
 
