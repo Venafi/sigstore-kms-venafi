@@ -22,7 +22,7 @@ jobs:
           mv sigstore-kms-venafi-windows-amd64 sigstore-kms-venafi-windows-amd64.exe
       - name: Upload artifacts
         if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: artifacts
           path: |
