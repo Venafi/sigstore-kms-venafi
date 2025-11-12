@@ -42,8 +42,8 @@ jobs:
         run: |
           make build
           echo "$PWD" >> $GITHUB_PATH
-      - name: Sign with notation
+      - name: Sign with cosign and the venafi kms plugin
         run: |
-          cosign sign --key "venafi://${{ env.VSIGN_PROJECT }}" --tlog-upload=false ${{ env.IMAGE }}
-          cosign verify --key "venafi://${{ env.VSIGN_PROJECT }}" --insecure-ignore-tlog=true ghcr.io/zosocanuck/net-monitor:v1
+          cosign sign --key "venafi://${{ env.VSIGN_PROJECT }}" --tlog-upload=false ${{ env.REGISTRY }}/net-monitor:v1
+          cosign verify --key "venafi://${{ env.VSIGN_PROJECT }}" --insecure-ignore-tlog=true ${{ env.REGISTRY }}/net-monitor:v1
   
