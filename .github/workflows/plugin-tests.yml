@@ -9,9 +9,6 @@ on:
 env:
   REGISTRY: localhost:5000
   IMAGE: ghcr.io/zosocanuck/net-monitor:v1
-  VSIGN_URL: ${{ secrets.TPP_URL }}
-  VSIGN_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-  VSIGN_PROJECT: ${{ secrets.TPP_PROJECT }}
 
 jobs:
   plugin-tests:
@@ -42,8 +39,20 @@ jobs:
         run: |
           make build
           echo "$PWD" >> $GITHUB_PATH
-      - name: Sign with notation
+      - name: Sign with cosign and the venafi kms plugin for self-hosted
         run: |
-          cosign sign --key "venafi://${{ env.VSIGN_PROJECT }}" --tlog-upload=false ${{ env.IMAGE }}
-          cosign verify --key "venafi://${{ env.VSIGN_PROJECT }}" --insecure-ignore-tlog=true ghcr.io/zosocanuck/net-monitor:v1
+          cosign sign --key "venafi://${{ env.VSIGN_PROJECT }}" --tlog-upload=false ${{ env.REGISTRY }}/net-monitor:v1
+          cosign verify --key "venafi://${{ env.VSIGN_PROJECT }}" --insecure-ignore-tlog=true ${{ env.REGISTRY }}/net-monitor:v1
+        env:
+          VSIGN_URL: ${{ secrets.TPP_URL }}
+          VSIGN_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          VSIGN_PROJECT: ${{ secrets.TPP_PROJECT }}
+      - name: Sign with cosign and the venafi kms plugin for cloud
+        run: |
+          cosign sign --key "venafi://${{ env.VSIGN_KEY_LABEL }}" --tlog-upload=false ${{ env.REGISTRY }}/net-monitor:v1
+          cosign verify --key "venafi://${{ env.VSIGN_KEY_LABEL }}" --insecure-ignore-tlog=true ${{ env.REGISTRY }}/net-monitor:v1
+        env:
+          VSIGN_URL: https://api.venafi.cloud
+          VSIGN_APIKEY: ${{ secrets.CLOUD_APIKEY }}
+          VSIGN_KEY_LABEL: vsign-rsa3072-cert
   

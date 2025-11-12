@@ -71,12 +71,21 @@ func (i VenafiSignerVerifier) PublicKey(opts ...signature.PublicKeyOption) (cryp
 // SignMessage signs the message with the KeyResourceID.
 func (i VenafiSignerVerifier) SignMessage(message io.Reader, opts ...signature.SignOption) ([]byte, error) {
 	os.Setenv("VSIGN_PROJECT", "placeholder")
+	os.Setenv("VSIGN_KEY_LABEL", "placeholder")
 	vSignCfg, err := vsign.BuildConfig(context.Background(), "")
 
 	if err != nil {
 		return nil, fmt.Errorf("error building config: %v", err)
 	}
-	vSignCfg.Project = i.keyResourceID
+
+	_, present := os.LookupEnv("VSIGN_APIKEY")
+
+	if present {
+		vSignCfg.KeyLabel = i.keyResourceID
+	} else {
+		vSignCfg.Project = i.keyResourceID
+	}
+
 	connector, err := vsign.NewClient(&vSignCfg)
 
 	if err != nil {
@@ -93,11 +102,17 @@ func (i VenafiSignerVerifier) SignMessage(message io.Reader, opts ...signature.S
 		return nil, fmt.Errorf("error reading message: %s", err)
 	}
 
-	certs, err := c.ParseCertificates(e.CertificateChainData)
-	if err != nil {
-		return nil, fmt.Errorf("error loading certificate: %s", err)
+	var mech = 0
+
+	if !present {
+		certs, err := c.ParseCertificates(e.CertificateChainData)
+		if err != nil {
+			return nil, fmt.Errorf("error loading certificate: %s", err)
+		}
+		mech = signingAlgToMech(certs[0])
+	} else {
+		mech = c.RsaPkcs
 	}
-	mech := signingAlgToMech(certs[0])
 
 	sig, err := connector.Sign(&endpoint.SignOption{
 		KeyID:     e.KeyID,
@@ -153,17 +168,17 @@ func (i VenafiSignerVerifier) VerifySignature(signature io.Reader, message io.Re
 		return fmt.Errorf("error reading message: %w", err)
 	}
 
-	switch publicKey.(type) {
+	switch publicKey := publicKey.(type) {
 	case *rsa.PublicKey:
-		if err := rsa.VerifyPKCS1v15(publicKey.(*rsa.PublicKey), signerOpts.HashFunc(), digest, sig); err != nil {
+		if err := rsa.VerifyPKCS1v15(publicKey, signerOpts.HashFunc(), digest, sig); err != nil {
 			return fmt.Errorf("error verifying signature: %w", err)
 		}
 	case *ecdsa.PublicKey:
-		if !ecdsa.VerifyASN1(publicKey.(*ecdsa.PublicKey), digest, sig) {
+		if !ecdsa.VerifyASN1(publicKey, digest, sig) {
 			return fmt.Errorf("failed verification")
 		}
 	case ed25519.PublicKey:
-		if !ed25519.Verify(publicKey.(ed25519.PublicKey), msg, sig) {
+		if !ed25519.Verify(publicKey, msg, sig) {
 			return fmt.Errorf("failed verification")
 		}
 	default:
@@ -182,13 +197,21 @@ func (i VenafiSignerVerifier) CryptoSigner(ctx context.Context, errFunc func(err
 
 func loadPublicKey(keyResourceID string) (crypto.PublicKey, error) {
 	os.Setenv("VSIGN_PROJECT", "placeholder")
+	os.Setenv("VSIGN_KEY_LABEL", "placeholder")
 	vSignCfg, err := vsign.BuildConfig(context.Background(), "")
 
 	if err != nil {
 		return nil, fmt.Errorf("error building config")
 	}
 
-	vSignCfg.Project = keyResourceID
+	_, present := os.LookupEnv("VSIGN_APIKEY")
+
+	if present {
+		vSignCfg.KeyLabel = keyResourceID
+	} else {
+		vSignCfg.Project = keyResourceID
+	}
+
 	connector, err := vsign.NewClient(&vSignCfg)
 
 	if err != nil {
@@ -200,8 +223,15 @@ func loadPublicKey(keyResourceID string) (crypto.PublicKey, error) {
 		return nil, fmt.Errorf("unable to get environment: %s", err)
 	}
 
-	certs, err := c.ParseCertificates(e.CertificateChainData)
-	return certs[0].PublicKey, nil
+	if e.CertificateChainData != nil {
+		certs, err := c.ParseCertificates(e.CertificateChainData)
+		if err != nil {
+			return nil, fmt.Errorf("unable to parse x.509 certificates %s", err)
+		}
+		return certs[0].PublicKey, nil
+	} else {
+		return e.PublicKey, nil
+	}
 
 }
 
