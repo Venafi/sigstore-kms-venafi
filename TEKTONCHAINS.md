@@ -4,19 +4,25 @@
 * Follow the [Development](https://github.com/tektoncd/chains/blob/main/DEVELOPMENT.md) documentation for Tekton Chains
 
 
-## Install Tekton Chains Controller with Venafi KMS Plugin
+## Install Tekton Chains Controller with CyberArk Code Sign Manager KMS Plugin
 
-1. Create a Kubernetes secret in the tekton-chains namespace to represent the Venafi CodeSign Protect Oauth token that the `sigstore-kms-venafi` KMS plugin will use to authenticate
+1. Create a Kubernetes secret in the tekton-chains namespace to represent the CyberArk Code Sign Manager Self-Hosted Oauth token or SaaS API Key that the `sigstore-kms-venafi` KMS plugin will use to authenticate
 
+#### Self-Hosted
 ```bash
 kubectl create secret generic venaficsp --from-literal=token='XXXXXXXXX' -n tekton-chains
 ```
 
+#### SaaS
+```bash
+kubectl create secret generic venaficsp --from-literal=apikey='XXXXXXXXX' -n tekton-chains
+```
+
 2. From the locally forked chains folder update the `100-deployment.yaml` file as follows:
 
-You will need to point to your [Venafi CodeSign Protect](https://venafi.com/codesign-protect/) instance by configuring `VSIGN_URL`.
+You will need to point to your [CyberArk Code Sign Manager](https://www.cyberark.com/products/code-sign-manager/) instance or SaaS tenant by configuring `VSIGN_URL`.  Refer to the [SaaS](https://developer.venafi.com/tlsprotectcloud/docs/control-plane-api-endpoints) documentation for the correct endpoint.
 
-You will also need to `signers.kms.kmsref` ConfigMap data entry to reference your specific code signing environment.
+You will also need to `signers.kms.kmsref` ConfigMap data entry to reference your specific code signing environment/signing-key.
 
 ```yaml
 # Copyright 2021 The Tekton Authors
@@ -116,7 +122,7 @@ spec:
             - sh
             - -c
           args:
-            - echo Downloading Venafi KMS Plugin for Sigstore;
+            - echo Downloading CyberArk Code Sign Manager KMS Plugin for Sigstore;
               wget -O /venafi-plugin/sigstore-kms-venafi https://github.com/Venafi/sigstore-kms-venafi/releases/download/v0.1.0-rc1/sigstore-kms-venafi-linux-amd64;
               chmod 755 /venafi-plugin/sigstore-kms-venafi;
               echo Finished downloading;
@@ -182,6 +188,8 @@ spec:
                   audience: sigstore
 
 ```
+
+*for SaaS replace `VSIGN_TOKEN` with `VSIGN_APIKEY`.*
 
 3. Create a simple `TaskRun`
 

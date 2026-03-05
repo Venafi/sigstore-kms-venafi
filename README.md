@@ -1,7 +1,7 @@
 # sigstore-kms-venafi
-Sigstore [KMS Plugin](https://github.com/sigstore/sigstore/tree/main/pkg/signature/kms/cliplugin) for Venafi CodeSign Protect
+Sigstore [KMS Plugin](https://github.com/sigstore/sigstore/tree/main/pkg/signature/kms/cliplugin) for CyberArk Code Sign Manager (previously Venafi CodeSign Protect)
 
-Supports [cosign](https://github.com/sigstore/cosign) image and artifact signing with [Venafi CodeSign Protect](https://venafi.com/codesign-protect/) leveraging the [vSign](https://github.com/Venafi/vsign) SDK
+Supports [cosign](https://github.com/sigstore/cosign) image and artifact signing with [CyberArk Code Sign Manager](https://www.cyberark.com/products/code-sign-manager/) leveraging the [vSign](https://github.com/Venafi/vsign) SDK
 
 ### KMS Plugin Spec Compatibility
 | Capability | Compatibility |
@@ -16,7 +16,7 @@ Supports [cosign](https://github.com/sigstore/cosign) image and artifact signing
 
 
 ### Pre-requisites
-* Venafi CodeSign Protect (22+)
+* CyberArk Code Sign Manager Self-Hosted/SaaS
 * Sigstore [cosign](https://github.com/sigstore/cosign) v2.4.3+
 
 ### Installation
@@ -32,10 +32,12 @@ cp sigstore-kms-venafi /usr/local/bin
 
 ### Configuration
 
-The Venafi KMS plugin relies on environment variables, and therefore must be set prior to running cosign with the plugin.  Review the [vSign](https://github.com/Venafi/vsign) SDK for detailed information on creating the necessary Venafi API oauth token.
+The CyberArk Code Sign Manager KMS plugin relies on environment variables, and therefore must be set prior to running cosign with the plugin.  Review the [vSign](https://github.com/Venafi/vsign) SDK for detailed information on creating the necessary CyberArk API oauth token.
 
 #### Create Environment Variables
 
+
+##### Self-Hosted
 These are the minimum variables required
 
 ```sh
@@ -46,9 +48,20 @@ VSIGN_JWT="xxxxxxxxxxx"
 
 For authentication only use either `VSIGN_TOKEN` or `VSIGN_JWT`, since the JWT will be exchanged for an access token.
 
+##### SaaS
+
+```sh
+VSIGN_URL="https://api.venafi.cloud"
+VSIGN_APIKEY="xxxxxxxxxxxxx"
+```
+
+Please review the following [documentation](https://developer.venafi.com/tlsprotectcloud/docs/code-sign-client-auth-user) on how to obtain the SaaS API Key.
+
 *Currently only Certificate environments are supported*
 
 ### Signing a Container Image
+
+#### Self-Hosted
 
 ```sh
 cosign sign --key "venafi://{venafi-csp-project-name\environment}" --tlog-upload=false my-org-repo/my-image:v1
@@ -60,7 +73,22 @@ Example:
 cosign sign --key "venafi://container-signing-project\my-cert" --tlog-upload=false my-org-repo/my-image:v1
 ```
 
+#### SaaS
+
+```sh
+cosign sign --key "venafi://{project}-{signing-key-name}" --tlog-upload=false my-org-repo/my-image:v1
+```
+
+Example:
+
+```sh
+cosign sign --key "venafi://myproject-mysigner" --tlog-upload=false my-org-repo/my-image:v1
+```
+
+
 ### Verifying a Container Image
+
+#### Self-Hosted
 
 ```sh
 cosign verify --key "venafi://{venafi-csp-project-name\environment}" --insecure-ignore-tlog=true my-org-repo/my-image:v1
@@ -72,9 +100,25 @@ Example:
 cosign verify --key "venafi://container-signing-project\my-cert" --insecure-ignore-tlog=true my-org-repo/my-image:v1
 ```
 
-### Creating Verifiable Records with Tekton Chains and Venafi CodeSign Protect
+#### SaaS
 
-Checkout the following [Tekton Chains and Venafi KMS Plugin](./TEKTONCHAINS.md) integration guide
+```sh
+cosign verify --key "venafi://{project}-{signing-key-name}" --insecure-ignore-tlog=true my-org-repo/my-image:v1
+```
+
+Example:
+
+```sh
+cosign verify --key "venafi://myproject-mysigner" --insecure-ignore-tlog=true my-org-repo/my-image:v1
+```
+
+### Creating Verifiable Records with Tekton Chains and CyberArk Code Sign Manager
+
+Checkout the following [Tekton Chains and CyberArk Code Sign Manager KMS Plugin](./TEKTONCHAINS.md) integration guide
+
+### Creating and Managing Verifiable Evidence with Valint and CyberArk Code Sign Manager
+
+Checkout the following [Valint and CyberArk Code Sign Manager KMS Plugin(./VALINT.md)] integration guide
 
 ## Want to Contribute
 
@@ -82,7 +126,7 @@ Checkout the following [Tekton Chains and Venafi KMS Plugin](./TEKTONCHAINS.md) 
 
 ### Contributing to sigstore-kms-venafi
 
-Venafi welcomes contributions from the developer community.
+CyberArk welcomes contributions from the developer community.
 
 1. Fork it to your account (https://github.com/Venafi/sigstore-kms-venafi/fork)
 2. Clone your fork:
@@ -106,7 +150,7 @@ Venafi welcomes contributions from the developer community.
 
 ## License
 
-Copyright &copy; Venafi, Inc. All rights reserved.
+Copyright &copy; CyberArk Software Ltd. All rights reserved.
 
 sigstore-kms-venafi is licensed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) for the full license text.
 
