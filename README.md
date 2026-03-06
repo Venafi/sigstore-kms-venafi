@@ -118,7 +118,7 @@ Checkout the following [Tekton Chains and CyberArk Code Sign Manager KMS Plugin]
 
 ### Creating and Managing Verifiable Evidence with Valint and CyberArk Code Sign Manager
 
-Checkout the following [Valint and CyberArk Code Sign Manager KMS Plugin(./VALINT.md)] integration guide
+Checkout the following [Valint and CyberArk Code Sign Manager KMS Plugin](./VALINT.md) integration guide
 
 ## Want to Contribute
 

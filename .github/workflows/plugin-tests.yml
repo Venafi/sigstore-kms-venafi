@@ -55,4 +55,18 @@ jobs:
           VSIGN_URL: https://api.venafi.cloud
           VSIGN_APIKEY: ${{ secrets.CLOUD_APIKEY }}
           VSIGN_KEY_LABEL: vsign-rsa3072-cert
+      - name: Install Valint
+        run: |
+          curl -L -o valint.tar.gz "https://github.com/scribe-security/valint-release/releases/download/v2.0.9/valint_2.0.9_linux-amd64.tar.gz"
+          tar -xzf valint.tar.gz
+          chmod +x valint
+          sudo mv valint /usr/local/bin/
+          valint --version # Verify installation
+      - name: Sign BOM with valint
+        run: |
+          /usr/local/bin/valint bom busybox:latest --kms venafi://${{ env.VSIGN_KEY_LABEL }}
+        env:
+          VSIGN_URL: https://api.venafi.cloud
+          VSIGN_APIKEY: ${{ secrets.CLOUD_APIKEY }}
+          VSIGN_KEY_LABEL: vsign-rsa3072-cert
   
