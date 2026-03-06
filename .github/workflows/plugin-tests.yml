@@ -61,7 +61,7 @@ jobs:
           tar -xzf valint.tar.gz
           chmod +x valint
           sudo mv valint /usr/local/bin/
-          valint version # Verify installation
+          valint --version # Verify installation
       - name: Sign BOM with valint
         run: |
           /usr/local/bin/valint bom busybox:latest --kms venafi://${{ env.VSIGN_KEY_LABEL }}
