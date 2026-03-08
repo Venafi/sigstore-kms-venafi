@@ -78,9 +78,10 @@ func (i VenafiSignerVerifier) SignMessage(message io.Reader, opts ...signature.S
 		return nil, fmt.Errorf("error building config: %v", err)
 	}
 
-	_, present := os.LookupEnv("VSIGN_APIKEY")
+	_, apiKeyPresent := os.LookupEnv("VSIGN_APIKEY")
+	_, clientIDPresent := os.LookupEnv("VSIGN_CLIENT_ID")
 
-	if present {
+	if clientIDPresent || apiKeyPresent {
 		vSignCfg.KeyLabel = i.keyResourceID
 	} else {
 		vSignCfg.Project = i.keyResourceID
@@ -104,7 +105,7 @@ func (i VenafiSignerVerifier) SignMessage(message io.Reader, opts ...signature.S
 
 	var mech = 0
 
-	if !present {
+	if !(apiKeyPresent || clientIDPresent) {
 		certs, err := c.ParseCertificates(e.CertificateChainData)
 		if err != nil {
 			return nil, fmt.Errorf("error loading certificate: %s", err)
@@ -204,9 +205,10 @@ func loadPublicKey(keyResourceID string) (crypto.PublicKey, error) {
 		return nil, fmt.Errorf("error building config")
 	}
 
-	_, present := os.LookupEnv("VSIGN_APIKEY")
+	_, apiKeyPresent := os.LookupEnv("VSIGN_APIKEY")
+	_, clientIDPresent := os.LookupEnv("VSIGN_CLIENT_ID")
 
-	if present {
+	if clientIDPresent || apiKeyPresent {
 		vSignCfg.KeyLabel = keyResourceID
 	} else {
 		vSignCfg.Project = keyResourceID

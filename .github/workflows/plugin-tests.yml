@@ -9,7 +9,6 @@ on:
 env:
   REGISTRY: localhost:5000
   IMAGE: ghcr.io/zosocanuck/net-monitor:v1
-
 jobs:
   plugin-tests:
     # Skip if running in a fork that might not have secrets configured.
@@ -68,5 +67,19 @@ jobs:
         env:
           VSIGN_URL: https://api.venafi.cloud
           VSIGN_APIKEY: ${{ secrets.CLOUD_APIKEY }}
+          VSIGN_KEY_LABEL: vsign-rsa3072-cert
+      - name: Create SA credentials file
+        uses: DamianReeves/write-file-action@v1.0
+        with:
+          path: ${{ github.workspace }}/sa.key
+          contents: |
+            ${{ secrets.CLOUD_SA_PRIVATEKEY }}
+      - name: Sign BOM with valint and service account
+        run: |
+          /usr/local/bin/valint bom busybox:latest --kms venafi://${{ env.VSIGN_KEY_LABEL }}
+        env:
+          VSIGN_URL: https://api.venafi.cloud
+          VSIGN_CLIENT_ID: ${{ secrets.CLOUD_SA_CLIENTID }}
+          VSIGN_PRIVATE_KEY_FILE: ${{ github.workspace }}/sa.key
           VSIGN_KEY_LABEL: vsign-rsa3072-cert
   
