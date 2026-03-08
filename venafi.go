@@ -79,6 +79,7 @@ func (i VenafiSignerVerifier) SignMessage(message io.Reader, opts ...signature.S
 	}
 
 	_, present := os.LookupEnv("VSIGN_APIKEY")
+	_, present = os.LookupEnv("VSIGN_CLIENT_ID")
 
 	if present {
 		vSignCfg.KeyLabel = i.keyResourceID
@@ -205,6 +206,7 @@ func loadPublicKey(keyResourceID string) (crypto.PublicKey, error) {
 	}
 
 	_, present := os.LookupEnv("VSIGN_APIKEY")
+	_, present = os.LookupEnv("VSIGN_CLIENT_ID")
 
 	if present {
 		vSignCfg.KeyLabel = keyResourceID

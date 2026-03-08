@@ -53,7 +53,19 @@ For authentication only use either `VSIGN_TOKEN` or `VSIGN_JWT`, since the JWT w
 ```sh
 VSIGN_URL="https://api.venafi.cloud"
 VSIGN_APIKEY="xxxxxxxxxxxxx"
+VSIGN_KEY_LABEL="{project}-{signing-key}"
 ```
+
+If using Service Accounts
+
+```sh
+VSIGN_URL="https://api.venafi.cloud"
+VSIGN_CLIENT_ID="xxxx"
+VSIGN_PRIVATE_KEY_FILE="/path/to/service-account-private-key.key"
+VSIGN_KEY_LABEL="{project}-{signing-key}"
+```
+
+*You can obtain the Service Account Client ID and signing key label from the SaaS UI*
 
 Please review the following [documentation](https://developer.venafi.com/tlsprotectcloud/docs/code-sign-client-auth-user) on how to obtain the SaaS API Key.
 
