@@ -179,6 +179,9 @@ func (i VenafiSignerVerifier) VerifySignature(signature io.Reader, message io.Re
 			return fmt.Errorf("failed verification")
 		}
 	case ed25519.PublicKey:
+		if len(msg) == 0 {
+			return fmt.Errorf("message cannot be empty for Ed25519 verification")
+		}
 		if !ed25519.Verify(publicKey, msg, sig) {
 			return fmt.Errorf("failed verification")
 		}
