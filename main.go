@@ -44,7 +44,7 @@ func main() {
 		keyResourceID: pluginArgs.InitOptions.KeyResourceID,
 	}
 
-	resp, err := handler.Dispatch(os.Stdout, os.Stdin, pluginArgs, signerVerifier)
+	_, err = handler.Dispatch(os.Stdout, os.Stdin, pluginArgs, signerVerifier)
 	if err != nil {
 		// Dispatch() will have already called WriteResponse() with the error.
 		panic(err)
