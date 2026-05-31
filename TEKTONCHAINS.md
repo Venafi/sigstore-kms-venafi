@@ -124,6 +124,8 @@ spec:
           args:
             - echo Downloading CyberArk Code Sign Manager KMS Plugin for Sigstore;
               wget -O /venafi-plugin/sigstore-kms-venafi https://github.com/Venafi/sigstore-kms-venafi/releases/download/v0.1.0-rc1/sigstore-kms-venafi-linux-amd64;
+              wget -O /venafi-plugin/sigstore-kms-venafi.sha256 https://github.com/Venafi/sigstore-kms-venafi/releases/download/v0.1.0-rc1/sigstore-kms-venafi-linux-amd64.sha256;
+              cd /venafi-plugin && sha256sum -c sigstore-kms-venafi.sha256;
               chmod 755 /venafi-plugin/sigstore-kms-venafi;
               echo Finished downloading;
           volumeMounts:
