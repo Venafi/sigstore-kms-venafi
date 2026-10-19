@@ -4,7 +4,7 @@ go 1.27.0
 
 require (
 	github.com/google/go-cmp v0.7.0
-	github.com/sigstore/sigstore v1.10.10
+	github.com/sigstore/sigstore v1.11.1
 	github.com/venafi/vsign v1.0.3
 )
 
